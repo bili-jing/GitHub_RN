@@ -5,6 +5,7 @@ import { BottomTabBar } from 'react-navigation-tabs';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
+import { connect } from 'react-redux';
 
 import PopularPage from '../page/PopularPage';
 import MyPage from '../page/MyPage';
@@ -49,21 +50,26 @@ const TABS = {
 	}
 };
 
-export default class DynamicTabNavigator extends Component {
+export class DynamicTabNavigator extends Component {
 	constructor(props) {
 		super(props);
 		console.disableYellowBox = true;
 	}
 
 	_tabNavigator() {
+		if (this.TABS) {
+			return this.TABS;
+		}
 		const { PopularPage, TrendingPage, FavoritePage, MyPage } = TABS;
 		const tabs = { PopularPage, TrendingPage, FavoritePage, MyPage };
 		PopularPage.navigationOptions.tabBarLabel = '最新';
-		return createAppContainer(
+		return (this.TABS = createAppContainer(
 			createBottomTabNavigator(tabs, {
-				tabBarComponent: TabBarComponent
+				tabBarComponent: (props) => {
+					return <TabBarComponent theme={this.props.theme} {...props} />;
+				}
 			})
-		);
+		));
 	}
 
 	render() {
@@ -82,28 +88,12 @@ class TabBarComponent extends React.Component {
 	}
 
 	render() {
-		const { routes, index } = this.props.navigation.state;
-		if (routes[index].params) {
-			const { theme } = routes[index].params;
-			//以更细的时间为主,防止被其他的tab之前的修改覆盖掉
-			if (theme && theme.updateTime > this.theme.updateTime) {
-				this.theme = theme;
-			}
-		}
-		return <BottomTabBar {...this.props} activeTintColor={this.theme.tintColor || this.props.activeTintColor} />;
+		return <BottomTabBar {...this.props} activeTintColor={this.props.theme} />;
 	}
 }
 
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-		backgroundColor: '#F5FCFF'
-	},
-	home: {
-		fontSize: 20,
-		textAlign: 'center',
-		margin: 10
-	}
+const mapStateToProps = (state) => ({
+	theme: state.theme.theme
 });
+
+export default connect(mapStateToProps)(DynamicTabNavigator);
