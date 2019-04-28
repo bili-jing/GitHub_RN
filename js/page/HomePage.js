@@ -6,11 +6,11 @@ import NavigationUtil from '../navigator/NavigationUtil';
 import DynamicTabNavigator from '../navigator/DynamicTabNavigator';
 
 class HomePage extends Component {
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
 	}
 
-	componentWillUnmount() {
+	componentDidMount() {
 		BackHandler.removeEventListener('hardwareBackPress', this.onBackPress);
 	}
 

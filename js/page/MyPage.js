@@ -14,6 +14,36 @@ class MyPage extends Component {
 						this.props.onThemeChange('pink');
 					}}
 				/>
+				<Text
+					onPress={() => {
+						NavigationUtil.goPage(
+							{
+								// navigation: this.props.navigation
+							},
+							'DetailPage'
+						);
+					}}
+				>
+					跳转到详情页
+				</Text>
+				<Button
+					title={'Fetch 使用'}
+					onPress={() => {
+						NavigationUtil.goPage({}, 'FetchDemo');
+					}}
+				/>
+				<Button
+					title={'AsyncStorage 使用'}
+					onPress={() => {
+						NavigationUtil.goPage({}, 'AsyncStorageDemoPage');
+					}}
+				/>
+				<Button
+					title={'离线缓存框架'}
+					onPress={() => {
+						NavigationUtil.goPage({}, 'DataStorageDemoPage');
+					}}
+				/>
 			</View>
 		);
 	}
