@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { ActivityIndicator, StyleSheet, View, FlatList, RefreshControl, Text } from 'react-native';
+import { ActivityIndicator, StyleSheet, View, FlatList, RefreshControl, Text, DeviceInfo } from 'react-native';
 import { createMaterialTopTabNavigator, createAppContainer } from 'react-navigation';
 import Toast from 'react-native-easy-toast';
+
 import actions from '../actions';
 import PopularItem from '../common/PopularItem';
+import NavigationBar from '../common/NavigationBar';
+import NavigationUtil from '../navigator/NavigationUtil';
 
-const THEME_COLOR = 'red';
+const THEME_COLOR = '#678';
 const URL = 'https://api.github.com/search/repositories?q=';
 const QUERY_STR = '&sort=stars'; //点赞数的排序
 const pageSize = 10;
@@ -30,6 +33,13 @@ export default class PopularPage extends Component {
 		return tabs;
 	}
 	render() {
+		let statusBar = {
+			backgroundColor: THEME_COLOR,
+			barStyle: 'light-content'
+		};
+		let navigationBar = (
+			<NavigationBar title={'最热'} statusBar={statusBar} style={{ backgroundColor: THEME_COLOR }} />
+		);
 		const TabNavigator = createAppContainer(
 			createMaterialTopTabNavigator(this._genTab(), {
 				tabBarOptions: {
@@ -37,7 +47,8 @@ export default class PopularPage extends Component {
 					upperCaseLabel: false, //是否使标签大写,默认是true
 					scrollEnabled: true, //是否支持,选项卡滚动,默认是false
 					style: {
-						backgroundColor: '#678'
+						backgroundColor: '#678',
+						height: 30 //解决scrollEnabled后在android上初次加载时闪烁问题
 					},
 					indicatorStyle: styles.indicatorStyle, //标签指示器(下边框)的样式
 					labelStyle: styles.labelStyle //文字的样式
@@ -45,7 +56,8 @@ export default class PopularPage extends Component {
 			})
 		);
 		return (
-			<View style={{ flex: 1, marginTop: 30 }}>
+			<View style={{ flex: 1, marginTop: DeviceInfo.isIPhoneX_deprecated ? 30 : 0 }}>
+				{navigationBar}
 				<TabNavigator />
 			</View>
 		);
@@ -96,7 +108,7 @@ class PopularTab extends Component {
 			store = {
 				items: [],
 				isLoading: false,
-				projectModes: [], //要显示的数据,
+				projectModels: [], //要显示的数据,
 				hideLoadingMore: true //默认隐藏加载更多
 			};
 		}
@@ -109,7 +121,14 @@ class PopularTab extends Component {
 
 	renderItem(data) {
 		const item = data.item;
-		return <PopularItem item={item} onSelect={() => {}} />;
+		return (
+			<PopularItem
+				item={item}
+				onSelect={() => {
+					NavigationUtil.goPage({ projectModel: item }, 'DetailPage');
+				}}
+			/>
+		);
 	}
 
 	genIndicator() {
@@ -126,7 +145,7 @@ class PopularTab extends Component {
 		return (
 			<View style={styles.container}>
 				<FlatList
-					data={store.projectModes}
+					data={store.projectModels}
 					renderItem={(data) => this.renderItem(data)}
 					keyExtractor={(item) => '' + item.id}
 					refreshControl={
@@ -175,7 +194,8 @@ const styles = StyleSheet.create({
 		margin: 10
 	},
 	tabStyle: {
-		minWidth: 50
+		// minWidth: 50
+		padding: 0
 	},
 	indicatorStyle: {
 		height: 2,
@@ -183,8 +203,7 @@ const styles = StyleSheet.create({
 	},
 	labelStyle: {
 		fontSize: 13,
-		marginTop: 6,
-		marginBottom: 6
+		margin: 0
 	},
 	indicatorContainer: {
 		alignItems: 'center'

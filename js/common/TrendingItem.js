@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { Text, View, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-export default class PopularItem extends Component {
+import HTMLView from 'react-native-htmlview';
+export default class TrendingItem extends Component {
 	render() {
 		const { item } = this.props;
-		if (!item || !item.owner) {
+		if (!item) {
 			return null;
 		}
 		let favoriteButton = (
@@ -13,19 +14,33 @@ export default class PopularItem extends Component {
 			</TouchableOpacity>
 		);
 
+		let description = '<p>' + item.description + '</p>';
+
 		return (
 			<TouchableOpacity onPress={this.props.onSelect}>
 				<View style={styles.cell_container}>
-					<Text style={styles.title}>{item.full_name}</Text>
-					<Text style={styles.description}>{item.description}</Text>
+					<Text style={styles.title}>{item.fullName}</Text>
+					<HTMLView
+						value={description}
+						onLinkPress={(url) => {}}
+						stylesheet={{
+							p: styles.description,
+							a: styles.description
+						}}
+					/>
+					<Text style={styles.description}>{item.meta}</Text>
 					<View style={styles.row}>
 						<View style={styles.row}>
-							<Text>Author:</Text>
-							<Image style={{ height: 22, width: 22 }} source={{ uri: item.owner.avatar_url }} />
-						</View>
-						<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-							<Text>Start:</Text>
-							<Text>{item.stargazers_count}</Text>
+							<Text>Built by:</Text>
+							{item.contributors.map((result, i, arr) => {
+								return (
+									<Image
+										key={i}
+										style={{ height: 22, width: 22, margin: 2 }}
+										source={{ uri: arr[i] }}
+									/>
+								);
+							})}
 						</View>
 						{favoriteButton}
 					</View>

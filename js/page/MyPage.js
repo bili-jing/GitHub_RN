@@ -1,12 +1,49 @@
 import React, { Component } from 'react';
-import { Text, StyleSheet, View, Button } from 'react-native';
+import { Text, StyleSheet, View, Button, TouchableOpacity,DeviceInfo } from 'react-native';
 import { connect } from 'react-redux';
-import actions from '../actions';
+import Feather from 'react-native-vector-icons/Feather';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
+import actions from '../actions';
+import NavigationBar from '../common/NavigationBar';
+import NavigationUtil from '../navigator/NavigationUtil';
+const THEME_COLOR = '#678';
 class MyPage extends Component {
+	getRightButton() {
+		return (
+			<View style={{ flexDirection: 'row' }}>
+				<TouchableOpacity onPress={() => {}}>
+					<View style={{ padding: 5, marginRight: 8 }}>
+						<Feather name={'search'} size={24} style={{ color: 'white' }} />
+					</View>
+				</TouchableOpacity>
+			</View>
+		);
+	}
+	getLeftButton() {
+		return (
+			<TouchableOpacity style={{ padding: 8, paddingLeft: 12 }} onPress={() => {}}>
+				<Ionicons name={'ios-arrow-back'} size={26} style={{ color: 'white' }} />
+			</TouchableOpacity>
+		);
+	}
 	render() {
+		let statusBar = {
+			backgroundColor: THEME_COLOR,
+			barStyle: 'light-content'
+		};
+		let navigationBar = (
+			<NavigationBar
+				title={'我的'}
+				statusBar={statusBar}
+				style={{ backgroundColor: THEME_COLOR }}
+				rightButton={this.getRightButton()}
+				leftButton={this.getLeftButton()}
+			/>
+		);
 		return (
 			<View style={styles.container}>
+				{navigationBar}
 				<Text style={styles.home}> MyPage </Text>
 				<Button
 					title={'改变主题颜色'}
@@ -48,13 +85,12 @@ class MyPage extends Component {
 		);
 	}
 }
-
+const marginTop = DeviceInfo.isIPhoneX_deprecated ? 30 :0
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-		backgroundColor: '#F5FCFF'
+		backgroundColor: '#F5FCFF',
+		marginTop: marginTop
 	},
 	home: {
 		fontSize: 20,

@@ -1,6 +1,6 @@
 import actionTypes from '../actionTypes';
 import DataStore, { FLAG_STOREAHE } from '../../expand/dao/DataStore';
-import {handleData} from '../ActionUtil'
+import { handleData } from '../ActionUtil';
 
 /**
  * 获取最热数据的异步action
@@ -9,22 +9,22 @@ import {handleData} from '../ActionUtil'
  * @param {number} pageSize 每页显示多少数据
  * @returns {function(*=)}
  */
-export function onLoadPopularData(storeName, url, pageSize) {
+export function onLoadTrendingData(storeName, url, pageSize) {
 	return (dispatch) => {
 		dispatch({
-			type: actionTypes.POPULAR_REFRESH,
+			type: actionTypes.TRENDING_REFRESH,
 			storeName
 		});
 		let dataStore = new DataStore();
 		dataStore
-			.fetchData(url, FLAG_STOREAHE.falg_popular) //异步action与数据流
+			.fetchData(url, FLAG_STOREAHE.flag_trending) //异步action与数据流
 			.then((data) => {
-				handleData(actionTypes.POPULAR_REFRESH_SUCCESS,dispatch, storeName, data, pageSize);
+				handleData(actionTypes.TRENDING_REFRESH_SUCCESS, dispatch, storeName, data, pageSize);
 			})
 			.catch((err) => {
 				console.log(err);
 				dispatch({
-					type: actionTypes.POPULAR_REFRESH_FAIL,
+					type: actionTypes.TRENDING_REFRESH_FAIL,
 					storeName,
 					err
 				});
@@ -40,7 +40,7 @@ export function onLoadPopularData(storeName, url, pageSize) {
  * @param {array} dataArray 数据数组
  * @param {function} callback 回调
  */
-export function onLoadMorePopular(storeName, pageIndex, pageSize, dataArray = [], callback) {
+export function onLoadMoreTrending(storeName, pageIndex, pageSize, dataArray = [], callback) {
 	return (dispatch) => {
 		setTimeout(() => {
 			//模拟网络请求
@@ -50,7 +50,7 @@ export function onLoadMorePopular(storeName, pageIndex, pageSize, dataArray = []
 					callback('no more');
 				}
 				dispatch({
-					type: actionTypes.POPULAR_LOAD_MORE_FAIL,
+					type: actionTypes.TRENDING_LOAD_MORE_FAIL,
 					error: 'no more',
 					storeName,
 					pageIndex: --pageIndex,
@@ -60,7 +60,7 @@ export function onLoadMorePopular(storeName, pageIndex, pageSize, dataArray = []
 				//本次和载入的最大数量:
 				let max = pageSize * pageIndex > dataArray.length ? dataArray.length : pageSize * pageIndex;
 				dispatch({
-					type: actionTypes.POPULAR_LOAD_MORE_SUCCESS,
+					type: actionTypes.TRENDING_LOAD_MORE_SUCCESS,
 					storeName,
 					pageIndex,
 					projectModels: dataArray.slice(0, max)
@@ -69,4 +69,3 @@ export function onLoadMorePopular(storeName, pageIndex, pageSize, dataArray = []
 		}, 500);
 	};
 }
-

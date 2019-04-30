@@ -10,6 +10,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import { connect } from 'react-redux';
+import {DeviceInfo} from 'react-native'
 
 import PopularPage from '../page/PopularPage';
 import MyPage from '../page/MyPage';

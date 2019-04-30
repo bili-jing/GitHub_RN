@@ -1,13 +1,16 @@
 // import { AsyncStorage } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
+import Trending from 'GitHubTrending';
+export const FLAG_STOREAHE = { falg_popular: 'popular', flag_trending: 'trending' };
 
 export default class DataStore {
 	/**
      * 获取数据,首先获取本地数据,如果没有本地数据或本地数据过期,则获取网络数据
      * @param {string} url 请求地址
+	 * @param {string} flag 标示
      * @returns {Promise}
      */
-	fetchData(url) {
+	fetchData(url, flag) {
 		return new Promise((resolve, reject) => {
 			this.fetchLoacaldata(url)
 				.then((warpData) => {
@@ -15,7 +18,7 @@ export default class DataStore {
 					if (warpData && DataStore.cheackTimestampValid(warpData.timestamp)) {
 						resolve(warpData);
 					} else {
-						this.fetchNetData(url)
+						this.fetchNetData(url, flag)
 							.then((data) => {
 								resolve(this._wrapData(data));
 							})
@@ -25,7 +28,7 @@ export default class DataStore {
 					}
 				})
 				.catch((err) => {
-					this.fetchLoacaldata(url)
+					this.fetchNetData(url, falg)
 						.then((data) => {
 							resolve(this._wrapData(data));
 						})
@@ -54,23 +57,38 @@ export default class DataStore {
      * @param {string} url 请求地址
      * @returns {Promise}
      */
-	fetchNetData(url) {
+	fetchNetData(url, flag) {
 		return new Promise((resolve, reject) => {
-			fetch(url)
-				.then((response) => {
-					if (response.ok) {
-						return response.json();
-					} else {
-						throw new Error('Network response was not ok');
-					}
-				})
-				.then((responseData) => {
-					this.saveData(url, responseData);
-					resolve(responseData);
-				})
-				.catch((err) => {
-					reject(err);
-				});
+			if (flag !== FLAG_STOREAHE.flag_trending) {
+				fetch(url, flag)
+					.then((response) => {
+						if (response.ok) {
+							return response.json();
+						} else {
+							throw new Error('Network response was not ok');
+						}
+					})
+					.then((responseData) => {
+						this.saveData(url, responseData);
+						resolve(responseData);
+					})
+					.catch((err) => {
+						reject(err);
+					});
+			} else {
+				new Trending()
+					.fetchTrending(url)
+					.then((items) => {
+						if (!items) {
+							throw new Error('responseData is null');
+						}
+						this.saveData(url, items);
+						resolve(items);
+					})
+					.catch((err) => {
+						reject(err);
+					});
+			}
 		});
 	}
 
