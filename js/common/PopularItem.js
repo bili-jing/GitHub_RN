@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
 import { Text, View, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import BaseItem from '../common/BaseItem'
+import BaseItem from '../common/BaseItem';
 
 export default class PopularItem extends BaseItem {
 	render() {
-		const {projectModel}  = this.props
+		const { projectModel } = this.props;
 		const { item } = projectModel;
 		if (!item || !item.owner) {
 			return null;
 		}
 
 		return (
-			<TouchableOpacity onPress={this.props.onSelect}>
+			<TouchableOpacity onPress={() => this.onItemClick()}>
 				<View style={styles.cell_container}>
 					<Text style={styles.title}>{item.full_name}</Text>
 					<Text style={styles.description}>{item.description}</Text>

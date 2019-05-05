@@ -5,9 +5,9 @@ import { connect } from 'react-redux';
 import WelcomePage from '../page/WelcomePage';
 import HomePage from '../page/HomePage';
 import DetailPage from '../page/DetailPage';
-import FetchDemo from '../page/FetchDemo';
-import AsyncStorageDemoPage from '../page/AsyncStorageDemoPage';
-import DataStorageDemoPage from '../page/DataStorageDemoPage';
+import WebViewPage from '../page/WebViewPage';
+import AboutPage from '../page/about/AboutPage';
+import AboutMePage from '../page/about/AboutMePage';
 
 export const rootCom = 'Init'; //设置根路由
 
@@ -33,19 +33,23 @@ const MainNavigator = createStackNavigator({
 			header: null
 		}
 	},
-	FetchDemo: {
-		screen: FetchDemo,
+	WebViewPage: {
+		screen: WebViewPage,
 		navigationOptions: {
-			// header: null
+			header: null
 		}
 	},
-	AsyncStorageDemoPage: {
-		screen: AsyncStorageDemoPage,
-		navigationOptions: {}
+	AboutPage: {
+		screen: AboutPage,
+		navigationOptions: {
+			header: null
+		}
 	},
-	DataStorageDemoPage: {
-		screen: DataStorageDemoPage,
-		navigationOptions: {}
+	AboutMePage: {
+		screen: AboutMePage,
+		navigationOptions: {
+			header: null
+		}
 	}
 });
 

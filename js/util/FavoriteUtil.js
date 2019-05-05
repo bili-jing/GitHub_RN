@@ -1,4 +1,4 @@
-import { FLAG_STOREAHE } from '../expand/dao/DataStore';
+import { FLAG_STORAGE } from '../expand/dao/DataStore';
 
 export default class FavoriteUtil {
 	/**
@@ -9,7 +9,7 @@ export default class FavoriteUtil {
      * @param flag
      */
 	static onFavorite(favoriteDao, item, isFavorite, flag) {
-		const key = flag === FLAG_STOREAHE.flag_trending ? item.fullName : item.id.toString();
+		const key = flag === FLAG_STORAGE.flag_trending ? item.fullName : item.id.toString();
 		if (isFavorite) {
 			favoriteDao.saveFavoriteItem(key, JSON.stringify(item));
 		} else {

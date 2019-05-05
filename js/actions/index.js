@@ -1,11 +1,15 @@
 import { onThemeChange } from './theme';
-import { onLoadPopularData, onLoadMorePopular } from './popular';
-import { onLoadMoreTrending, onLoadTrendingData } from './trending';
+import { onLoadPopularData, onLoadMorePopular, onFlushPopularFavorite } from './popular';
+import { onLoadMoreTrending, onLoadTrendingData, onFlushTrendingFavorite } from './trending';
+import { onLoadFavoriteData } from './favorite';
 
 export default {
 	onThemeChange,
 	onLoadPopularData,
 	onLoadMorePopular,
 	onLoadMoreTrending,
-	onLoadTrendingData
+	onLoadTrendingData,
+	onLoadFavoriteData,
+	onFlushPopularFavorite,
+	onFlushTrendingFavorite
 };

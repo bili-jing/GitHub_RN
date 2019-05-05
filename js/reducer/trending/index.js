@@ -38,7 +38,7 @@ export default function onAction(state = defaultState, action) {
 				[action.storeName]: {
 					...state[action.storeName],
 					isLoading: true,
-					hideLoadingMore: true,
+					hideLoadingMore: true
 				}
 			};
 		case actionTypes.TRENDING_REFRESH_FAIL: //下拉刷新失败
@@ -66,6 +66,14 @@ export default function onAction(state = defaultState, action) {
 					...state[action.storeName],
 					hideLoadingMore: true,
 					pageIndex: action.pageIndex
+				}
+			};
+		case actionTypes.FLUSH_TRENDING_FAVORITE: //刷新收藏状态
+			return {
+				...state,
+				[action.storeName]: {
+					...state[action.storeName],
+					projectModels: action.projectModels
 				}
 			};
 		default:

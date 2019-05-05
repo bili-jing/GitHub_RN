@@ -11,21 +11,15 @@ import FavoriteDao from '../expand/dao/FavoriteDao';
 const TRENDING_URL = 'https://github.com/';
 const THEME_COLOR = '#678';
 
-export default class DetailPage extends Component {
+export default class WebViewPage extends Component {
 	constructor(props) {
 		super(props);
 		this.params = this.props.navigation.state.params;
-		const { projectModel, flag } = this.params;
-		console.log('this.params', this.params);
-		console.log('flag', flag);
-		this.favoriteDao = new FavoriteDao(flag);
-		this.url = projectModel.item.html_url || TRENDING_URL + projectModel.item.fullName;
-		const title = projectModel.item.full_name || projectModel.item.fullName;
+		const { title, url } = this.params;
 		this.state = {
 			title: title,
-			url: this.url,
-			canGoBack: false,
-			isFavorite: projectModel.isFavorite
+			url: url,
+			canGoBack: false
 		};
 		this.backPress = new BackPressComponent({ backPress: () => this.onBackPress() });
 	}
@@ -64,20 +58,6 @@ export default class DetailPage extends Component {
 			this.favoriteDao.removeFavoriteItem(key);
 		}
 	}
-	renderRightButton() {
-		return (
-			<View style={{ flexDirection: 'row' }}>
-				<TouchableOpacity onPress={() => this.onFavoriteButtonClick()}>
-					<FontAwesome
-						name={this.state.isFavorite ? 'star' : 'star-o'}
-						size={20}
-						style={{ color: 'white', marginRight: 10 }}
-					/>
-				</TouchableOpacity>
-				{ViewUtil.getShareButton(() => {})}
-			</View>
-		);
-	}
 
 	onNavigationStateChange(navState) {
 		this.setState({
@@ -89,11 +69,9 @@ export default class DetailPage extends Component {
 		const titleLayoutStyle = this.state.title.length > 20 ? { paddingRight: 30 } : null;
 		let navigationBar = (
 			<NavigationBar
-				titleLayoutStyle={titleLayoutStyle}
-				leftButton={ViewUtil.getLeftButton(() => this.onBack())}
 				title={this.state.title}
 				style={{ backgroundColor: THEME_COLOR }}
-				rightButton={this.renderRightButton()}
+				leftButton={ViewUtil.getLeftButton(() => this.onBackPress())}
 			/>
 		);
 		return (

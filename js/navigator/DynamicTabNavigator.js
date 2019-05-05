@@ -10,12 +10,14 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import { connect } from 'react-redux';
-import {DeviceInfo} from 'react-native'
+import { DeviceInfo } from 'react-native';
+import EventBus from 'react-native-event-bus';
 
 import PopularPage from '../page/PopularPage';
 import MyPage from '../page/MyPage';
 import FavoritePage from '../page/FavoritePage';
 import TrendingPage from '../page/TrendingPage';
+import EeventTypes from '../util/EventTypes';
 
 const TABS = {
 	//这里配置路由页面
@@ -79,7 +81,17 @@ export class DynamicTabNavigator extends Component {
 
 	render() {
 		const Tab = this._tabNavigator();
-		return <Tab />;
+		return (
+			<Tab
+				onNavigationStateChange={(prevState, newState, action) => {
+					EventBus.getInstance().fireEvent(EeventTypes.bottom_tab_select, {
+						//发送底部tab切换事件
+						from: prevState.index,
+						to: newState.index
+					});
+				}}
+			/>
+		);
 	}
 }
 

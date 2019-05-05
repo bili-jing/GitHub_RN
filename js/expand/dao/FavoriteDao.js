@@ -94,10 +94,10 @@ export default class FavoriteDao {
 					if (keys) {
 						AsyncStorage.multiGet(keys, (err, stores) => {
 							try {
-								stores.map(result, i, (store) => {
+								stores.map((result, i, store) => {
 									let key = store[i][0];
 									let value = store[i][1];
-									if (key) items.push(JSON.parse(value));
+									if (value) items.push(JSON.parse(value));
 								});
 								resolve(items);
 							} catch (error) {

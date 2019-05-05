@@ -14,6 +14,7 @@ import { createMaterialTopTabNavigator, createAppContainer } from 'react-navigat
 import Toast from 'react-native-easy-toast';
 import { DeviceInfo } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import EventBus from 'react-native-event-bus';
 
 import actions from '../actions';
 import NavigationBar from '../common/NavigationBar';
@@ -21,14 +22,15 @@ import TrendingItem from '../common/TrendingItem';
 import TrendingDialog, { TimeSpans } from '../common/TrendingDialog';
 import NavigationUtil from '../navigator/NavigationUtil';
 import FavoriteUtil from '../util/FavoriteUtil';
-import { FLAG_STOREAHE } from '../expand/dao/DataStore';
+import { FLAG_STORAGE } from '../expand/dao/DataStore';
 import FavoriteDao from '../expand/dao/FavoriteDao';
+import EventTypes from '../util/EventTypes';
 
 const EVENT_TYPE_TIME_SPAN_CHANGE = 'EVENT_TYPE_TIME_SPAN_CHANGE';
 const THEME_COLOR = '#678';
 const URL = 'https://github.com/trending/';
 const pageSize = 10;
-const favoriteDao = new FavoriteDao(FLAG_STOREAHE.flag_trending);
+const favoriteDao = new FavoriteDao(FLAG_STORAGE.flag_trending);
 
 export default class TrendingPage extends Component {
 	constructor(props) {
@@ -135,7 +137,9 @@ const mapDispatchToProps = (dispatch) => ({
 	onLoadTrendingData: (storeName, url, pagaSize, favoriteDao) =>
 		dispatch(actions.onLoadTrendingData(storeName, url, pagaSize, favoriteDao)),
 	onLoadMoreTrending: (storeName, pageIndex, pageSize, items, favoriteDao, callback) =>
-		dispatch(actions.onLoadMoreTrending(storeName, pageIndex, pageSize, items, favoriteDao, callback))
+		dispatch(actions.onLoadMoreTrending(storeName, pageIndex, pageSize, items, favoriteDao, callback)),
+	onFlushTrendingFavorite: (storeName, pageIndex, pageSize, items, favoriteDao) =>
+		dispatch(actions.onFlushTrendingFavorite(storeName, pageIndex, pageSize, items, favoriteDao))
 });
 
 class TrendingTab extends Component {
@@ -144,6 +148,7 @@ class TrendingTab extends Component {
 		const { tabLabel, timeSpan } = this.props;
 		this.storeName = tabLabel;
 		this.timeSpan = timeSpan;
+		this.isFavoriteChanged = false;
 	}
 
 	componentDidMount() {
@@ -152,22 +157,41 @@ class TrendingTab extends Component {
 			this.timeSpan = timeSpan;
 			this.loadData();
 		});
+		EventBus.getInstance().addListener(
+			EventTypes.favorite_change_trending,
+			(this.favoriteChangeListener = () => {
+				this.isFavoriteChanged = true;
+			})
+		);
+		EventBus.getInstance().addListener(
+			EventTypes.bottom_tab_select,
+			(this.bottomTabSelectListener = (data) => {
+				if (data.to === 1 && this.isFavoriteChanged) {
+					this.loadData(null, true);
+				}
+			})
+		);
 	}
 
 	componentWillUnmount() {
 		if (this.timeSpanChangeListener) {
 			this.timeSpanChangeListener.remove();
 		}
+		EventBus.getInstance().removeListener(this.favoriteChangeListener);
+		EventBus.getInstance().removeListener(this.bottomTabSelectListener);
 	}
 
-	loadData(loadMore) {
-		const { onLoadMoreTrending, onLoadTrendingData } = this.props;
+	loadData(loadMore, refreshFavorite) {
+		const { onLoadMoreTrending, onLoadTrendingData, onFlushTrendingFavorite } = this.props;
 		const store = this._store();
 		const url = this.genFetchUrl(this.storeName);
 		if (loadMore) {
 			onLoadMoreTrending(this.storeName, ++store.pageIndex, pageSize, store.items, favoriteDao, (callback) => {
 				this.refs.toast.show('没有更多了');
 			});
+		} else if (refreshFavorite) {
+			onFlushTrendingFavorite(this.storeName, store.pageIndex, pageSize, store.items, favoriteDao);
+			this.isFavoriteChanged = false;
 		} else {
 			onLoadTrendingData(this.storeName, url, pageSize, favoriteDao);
 		}
@@ -199,11 +223,14 @@ class TrendingTab extends Component {
 		return (
 			<TrendingItem
 				projectModel={item}
-				onSelect={() => {
-					NavigationUtil.goPage({ projectModel: item }, 'DetailPage');
+				onSelect={(callback) => {
+					NavigationUtil.goPage(
+						{ projectModel: item, flag: FLAG_STORAGE.flag_trending, callback },
+						'DetailPage'
+					);
 				}}
 				onFavorite={(item, isFavorite) =>
-					FavoriteUtil.onFavorite(favoriteDao, item, isFavorite, FLAG_STOREAHE.flag_trending)}
+					FavoriteUtil.onFavorite(favoriteDao, item, isFavorite, FLAG_STORAGE.flag_trending)}
 			/>
 		);
 	}

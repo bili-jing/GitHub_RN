@@ -1,5 +1,5 @@
 import actionTypes from '../actionTypes';
-import DataStore, { FLAG_STOREAHE } from '../../expand/dao/DataStore';
+import DataStore, { FLAG_STORAGE } from '../../expand/dao/DataStore';
 import { handleData, _projectModels } from '../ActionUtil';
 
 /**
@@ -18,7 +18,7 @@ export function onLoadTrendingData(storeName, url, pageSize, favoriteDao) {
 		});
 		let dataStore = new DataStore();
 		dataStore
-			.fetchData(url, FLAG_STOREAHE.flag_trending) //异步action与数据流
+			.fetchData(url, FLAG_STORAGE.flag_trending) //异步action与数据流
 			.then((data) => {
 				handleData(actionTypes.TRENDING_REFRESH_SUCCESS, dispatch, storeName, data, pageSize, favoriteDao);
 			})
@@ -76,5 +76,29 @@ export function onLoadMoreTrending(storeName, pageIndex, pageSize, dataArray = [
 				});
 			}
 		}, 500);
+	};
+}
+
+/**
+ * 刷新收藏状态
+ * @param storeName
+ * @param pageIndex 第几页
+ * @param pageSize 每页展示条数
+ * @param dataArray 原始数据
+ * @param favoriteDao
+ * @returns {function(*)}
+ */
+export function onFlushTrendingFavorite(storeName, pageIndex, pageSize, dataArray = [], favoriteDao) {
+	return (dispatch) => {
+		//本次和载入的最大数量
+		let max = pageSize * pageIndex > dataArray.length ? dataArray.length : pageSize * pageIndex;
+		_projectModels(dataArray.slice(0, max), favoriteDao, (data) => {
+			dispatch({
+				type: actionTypes.FLUSH_TRENDING_FAVORITE,
+				storeName,
+				pageIndex,
+				projectModels: data
+			});
+		});
 	};
 }
